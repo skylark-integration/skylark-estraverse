@@ -1,0 +1,114 @@
+/**
+ * skylark-estraverse - A version of estraverse that ported to running on skylarkjs.
+ * @author Hudaokeji Co.,Ltd
+ * @version v0.9.0
+ * @link www.skylarkjs.org
+ * @license MIT
+ */
+(function(factory,globals,define,require) {
+  var isAmd = (typeof define === 'function' && define.amd),
+      isCmd = (!isAmd && typeof exports !== 'undefined');
+
+  if (!isAmd && !define) {
+    var map = {};
+    function absolute(relative, base) {
+        if (relative[0]!==".") {
+          return relative;
+        }
+        var stack = base.split("/"),
+            parts = relative.split("/");
+        stack.pop(); 
+        for (var i=0; i<parts.length; i++) {
+            if (parts[i] == ".")
+                continue;
+            if (parts[i] == "..")
+                stack.pop();
+            else
+                stack.push(parts[i]);
+        }
+        return stack.join("/");
+    }
+    define = globals.define = function(id, deps, factory) {
+        if (typeof factory == 'function') {
+            map[id] = {
+                factory: factory,
+                deps: deps.map(function(dep){
+                  return absolute(dep,id);
+                }),
+                resolved: false,
+                exports: null
+            };
+            require(id);
+        } else {
+            map[id] = {
+                factory : null,
+                resolved : true,
+                exports : factory
+            };
+        }
+    };
+    require = globals.require = function(id) {
+        if (!map.hasOwnProperty(id)) {
+            throw new Error('Module ' + id + ' has not been defined');
+        }
+        var module = map[id];
+        if (!module.resolved) {
+            var args = [];
+
+            module.deps.forEach(function(dep){
+                args.push(require(dep));
+            })
+
+            module.exports = module.factory.apply(globals, args) || null;
+            module.resolved = true;
+        }
+        return module.exports;
+    };
+  }
+  
+  if (!define) {
+     throw new Error("The module utility (ex: requirejs or skylark-utils) is not loaded!");
+  }
+
+  factory(define,require);
+
+  if (!isAmd) {
+    var skylarkjs = require("skylark-langx-ns");
+
+    if (isCmd) {
+      module.exports = skylarkjs;
+    } else {
+      globals.skylarkjs  = skylarkjs;
+    }
+  }
+
+})(function(define,require) {
+
+/*
+  Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
+  Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+define("skylark-estraverse/estraverse",[],function(){"use strict";var r,l,n,y,x,_;function p(e){var t,r,n={};for(t in e)e.hasOwnProperty(t)&&(r=e[t],n[t]="object"==typeof r&&null!==r?p(r):r);return n}function g(e,t){this.parent=e,this.key=t}function E(e,t,r,n){this.node=e,this.path=t,this.wrap=r,this.ref=n}function i(){}function S(e){return null!=e&&"object"==typeof e&&"string"==typeof e.type}function b(e,t){return(e===r.ObjectExpression||e===r.ObjectPattern)&&"properties"===t}function m(e,t){for(var r=e.length-1;0<=r;--r)if(e[r].node===t)return 1}function c(e,t){(new i).traverse(e,t)}function u(t,e){var r=function(e,t){for(var r,n,i=e.length,a=0;i;)t(e[n=a+(r=i>>>1)])?i=r:(a=n+1,i-=1+r);return a}(e,function(e){return e.range[0]>t.range[0]});return t.extendedRange=[t.range[0],t.range[1]],r!==e.length&&(t.extendedRange[1]=e[r].range[0]),0<=--r&&(t.extendedRange[0]=e[r].range[1]),t}return r={AssignmentExpression:"AssignmentExpression",AssignmentPattern:"AssignmentPattern",ArrayExpression:"ArrayExpression",ArrayPattern:"ArrayPattern",ArrowFunctionExpression:"ArrowFunctionExpression",AwaitExpression:"AwaitExpression",BlockStatement:"BlockStatement",BinaryExpression:"BinaryExpression",BreakStatement:"BreakStatement",CallExpression:"CallExpression",CatchClause:"CatchClause",ChainExpression:"ChainExpression",ClassBody:"ClassBody",ClassDeclaration:"ClassDeclaration",ClassExpression:"ClassExpression",ComprehensionBlock:"ComprehensionBlock",ComprehensionExpression:"ComprehensionExpression",ConditionalExpression:"ConditionalExpression",ContinueStatement:"ContinueStatement",DebuggerStatement:"DebuggerStatement",DirectiveStatement:"DirectiveStatement",DoWhileStatement:"DoWhileStatement",EmptyStatement:"EmptyStatement",ExportAllDeclaration:"ExportAllDeclaration",ExportDefaultDeclaration:"ExportDefaultDeclaration",ExportNamedDeclaration:"ExportNamedDeclaration",ExportSpecifier:"ExportSpecifier",ExpressionStatement:"ExpressionStatement",ForStatement:"ForStatement",ForInStatement:"ForInStatement",ForOfStatement:"ForOfStatement",FunctionDeclaration:"FunctionDeclaration",FunctionExpression:"FunctionExpression",GeneratorExpression:"GeneratorExpression",Identifier:"Identifier",IfStatement:"IfStatement",ImportExpression:"ImportExpression",ImportDeclaration:"ImportDeclaration",ImportDefaultSpecifier:"ImportDefaultSpecifier",ImportNamespaceSpecifier:"ImportNamespaceSpecifier",ImportSpecifier:"ImportSpecifier",Literal:"Literal",LabeledStatement:"LabeledStatement",LogicalExpression:"LogicalExpression",MemberExpression:"MemberExpression",MetaProperty:"MetaProperty",MethodDefinition:"MethodDefinition",ModuleSpecifier:"ModuleSpecifier",NewExpression:"NewExpression",ObjectExpression:"ObjectExpression",ObjectPattern:"ObjectPattern",PrivateIdentifier:"PrivateIdentifier",Program:"Program",Property:"Property",PropertyDefinition:"PropertyDefinition",RestElement:"RestElement",ReturnStatement:"ReturnStatement",SequenceExpression:"SequenceExpression",SpreadElement:"SpreadElement",Super:"Super",SwitchStatement:"SwitchStatement",SwitchCase:"SwitchCase",TaggedTemplateExpression:"TaggedTemplateExpression",TemplateElement:"TemplateElement",TemplateLiteral:"TemplateLiteral",ThisExpression:"ThisExpression",ThrowStatement:"ThrowStatement",TryStatement:"TryStatement",UnaryExpression:"UnaryExpression",UpdateExpression:"UpdateExpression",VariableDeclaration:"VariableDeclaration",VariableDeclarator:"VariableDeclarator",WhileStatement:"WhileStatement",WithStatement:"WithStatement",YieldExpression:"YieldExpression"},n={AssignmentExpression:["left","right"],AssignmentPattern:["left","right"],ArrayExpression:["elements"],ArrayPattern:["elements"],ArrowFunctionExpression:["params","body"],AwaitExpression:["argument"],BlockStatement:["body"],BinaryExpression:["left","right"],BreakStatement:["label"],CallExpression:["callee","arguments"],CatchClause:["param","body"],ChainExpression:["expression"],ClassBody:["body"],ClassDeclaration:["id","superClass","body"],ClassExpression:["id","superClass","body"],ComprehensionBlock:["left","right"],ComprehensionExpression:["blocks","filter","body"],ConditionalExpression:["test","consequent","alternate"],ContinueStatement:["label"],DebuggerStatement:[],DirectiveStatement:[],DoWhileStatement:["body","test"],EmptyStatement:[],ExportAllDeclaration:["source"],ExportDefaultDeclaration:["declaration"],ExportNamedDeclaration:["declaration","specifiers","source"],ExportSpecifier:["exported","local"],ExpressionStatement:["expression"],ForStatement:["init","test","update","body"],ForInStatement:["left","right","body"],ForOfStatement:["left","right","body"],FunctionDeclaration:["id","params","body"],FunctionExpression:["id","params","body"],GeneratorExpression:["blocks","filter","body"],Identifier:[],IfStatement:["test","consequent","alternate"],ImportExpression:["source"],ImportDeclaration:["specifiers","source"],ImportDefaultSpecifier:["local"],ImportNamespaceSpecifier:["local"],ImportSpecifier:["imported","local"],Literal:[],LabeledStatement:["label","body"],LogicalExpression:["left","right"],MemberExpression:["object","property"],MetaProperty:["meta","property"],MethodDefinition:["key","value"],ModuleSpecifier:[],NewExpression:["callee","arguments"],ObjectExpression:["properties"],ObjectPattern:["properties"],PrivateIdentifier:[],Program:["body"],Property:["key","value"],PropertyDefinition:["key","value"],RestElement:["argument"],ReturnStatement:["argument"],SequenceExpression:["expressions"],SpreadElement:["argument"],Super:[],SwitchStatement:["discriminant","cases"],SwitchCase:["test","consequent"],TaggedTemplateExpression:["tag","quasi"],TemplateElement:[],TemplateLiteral:["quasis","expressions"],ThisExpression:[],ThrowStatement:["argument"],TryStatement:["block","handler","finalizer"],UnaryExpression:["argument"],UpdateExpression:["argument"],VariableDeclaration:["declarations"],VariableDeclarator:["id","init"],WhileStatement:["test","body"],WithStatement:["object","body"],YieldExpression:["argument"]},l={Break:y={},Skip:x={},Remove:_={}},g.prototype.replace=function(e){this.parent[this.key]=e},g.prototype.remove=function(){return Array.isArray(this.parent)?(this.parent.splice(this.key,1),!0):(this.replace(null),!1)},i.prototype.path=function(){var e,t,r,n,i;function a(e,t){if(Array.isArray(t))for(r=0,n=t.length;r<n;++r)e.push(t[r]);else e.push(t)}if(!this.__current.path)return null;for(i=[],e=2,t=this.__leavelist.length;e<t;++e)a(i,this.__leavelist[e].path);return a(i,this.__current.path),i},i.prototype.type=function(){return this.current().type||this.__current.wrap},i.prototype.parents=function(){for(var e=[],t=1,r=this.__leavelist.length;t<r;++t)e.push(this.__leavelist[t].node);return e},i.prototype.current=function(){return this.__current.node},i.prototype.__execute=function(e,t){var r=void 0,n=this.__current;return this.__current=t,this.__state=null,e&&(r=e.call(this,t.node,this.__leavelist[this.__leavelist.length-1].node)),this.__current=n,r},i.prototype.notify=function(e){this.__state=e},i.prototype.skip=function(){this.notify(x)},i.prototype.break=function(){this.notify(y)},i.prototype.remove=function(){this.notify(_)},i.prototype.__initialize=function(e,t){this.visitor=t,this.root=e,this.__worklist=[],this.__leavelist=[],this.__current=null,this.__state=null,this.__fallback=null,"iteration"===t.fallback?this.__fallback=Object.keys:"function"==typeof t.fallback&&(this.__fallback=t.fallback),this.__keys=n,t.keys&&(this.__keys=Object.assign(Object.create(this.__keys),t.keys))},i.prototype.traverse=function(e,t){var r,n,i,a,s,o,l,p,c,u,f,h;for(this.__initialize(e,t),h={},r=this.__worklist,n=this.__leavelist,r.push(new E(e,null,null,null)),n.push(new E(null,null,null,null));r.length;)if((i=r.pop())===h){if(i=n.pop(),o=this.__execute(t.leave,i),this.__state===y||o===y)return}else if(i.node){if(o=this.__execute(t.enter,i),this.__state===y||o===y)return;if(r.push(h),n.push(i),this.__state!==x&&o!==x){if(s=(a=i.node).type||i.wrap,!(u=this.__keys[s])){if(!this.__fallback)throw new Error("Unknown node type "+s+".");u=this.__fallback(a)}for(p=u.length;0<=--p;)if(f=a[l=u[p]])if(Array.isArray(f)){for(c=f.length;0<=--c;)if(f[c]&&!m(n,f[c])){if(b(s,u[p]))i=new E(f[c],[l,c],"Property",null);else{if(!S(f[c]))continue;i=new E(f[c],[l,c],null,null)}r.push(i)}}else!S(f)||m(n,f)||r.push(new E(f,l,null,null))}}},i.prototype.replace=function(e,t){var a,r,n,i,s,o,l,p,c,u,f,h,m;function d(e){var t,r,n,i;if(e.ref.remove())for(r=e.ref.key,i=e.ref.parent,t=a.length;t--;)if((n=a[t]).ref&&n.ref.parent===i){if(n.ref.key<r)break;--n.ref.key}}for(this.__initialize(e,t),f={},a=this.__worklist,r=this.__leavelist,o=new E(e,null,null,new g(h={root:e},"root")),a.push(o),r.push(o);a.length;)if((o=a.pop())===f){if(o=r.pop(),void 0!==(s=this.__execute(t.leave,o))&&s!==y&&s!==x&&s!==_&&o.ref.replace(s),this.__state!==_&&s!==_||d(o),this.__state===y||s===y)return h.root}else{if(void 0!==(s=this.__execute(t.enter,o))&&s!==y&&s!==x&&s!==_&&(o.ref.replace(s),o.node=s),this.__state!==_&&s!==_||(d(o),o.node=null),this.__state===y||s===y)return h.root;if((n=o.node)&&(a.push(f),r.push(o),this.__state!==x)&&s!==x){if(i=n.type||o.wrap,!(c=this.__keys[i])){if(!this.__fallback)throw new Error("Unknown node type "+i+".");c=this.__fallback(n)}for(l=c.length;0<=--l;)if(u=n[m=c[l]])if(Array.isArray(u)){for(p=u.length;0<=--p;)if(u[p]){if(b(i,c[l]))o=new E(u[p],[m,p],"Property",new g(u,p));else{if(!S(u[p]))continue;o=new E(u[p],[m,p],null,new g(u,p))}a.push(o)}}else S(u)&&a.push(new E(u,m,null,new g(n,m)))}}return h.root},{Syntax:r,traversals:traversals,replace:function(e,t){return(new i).replace(e,t)},attachComments:function(e,t,r){var n,i,a,s,o=[];if(!e.range)throw new Error("attachComments needs range information");if(r.length){for(a=0,i=t.length;a<i;a+=1)o.push(u(p(t[a]),r));s=0,c(e,{enter:function(e){if(e.range){for(var t;s<o.length&&!((t=o[s]).extendedRange[1]>e.range[0]);)t.extendedRange[1]===e.range[0]?(e.leadingComments||(e.leadingComments=[]),e.leadingComments.push(t),o.splice(s,1)):s+=1;return s===o.length?l.Break:o[s].extendedRange[0]>e.range[1]?l.Skip:void 0}}}),s=0,c(e,{leave:function(e){if(e.range){for(var t;s<o.length&&(t=o[s],!(e.range[1]<t.extendedRange[0]));)e.range[1]===t.extendedRange[0]?(e.trailingComments||(e.trailingComments=[]),e.trailingComments.push(t),o.splice(s,1)):s+=1;return s===o.length?l.Break:o[s].extendedRange[0]>e.range[1]?l.Skip:void 0}}})}else if(t.length){for(a=0,i=t.length;a<i;a+=1)(n=p(t[a])).extendedRange=[0,e.range[0]],o.push(n);e.leadingComments=o}return e},VisitorKeys:n,Controller:i}}),define("skylark-estraverse/main",["./estraverse"],function(e){return e}),define("skylark-estraverse",["skylark-estraverse/main"],function(e){return e});
+},this,define,require);
+//# sourceMappingURL=sourcemaps/skylark-estraverse-all.js.map
